@@ -59,6 +59,7 @@ class B_Tree :
             while ((i < self.x.n) and (key > self.x.K[i])) : 
                 i += 1
             if (i <= self.x.n) and (key == self.x.K[i]) : 
+                stack.append(self.x) 
                 return True, stack
             stack.append(self.x) 
             self.x = self.x.P[i]
@@ -116,10 +117,61 @@ class B_Tree :
         
 # ----------------------------------------------------------------
     def deleteBT(self, T, m, oldKey) : 
+        T = self.root 
+        found, stack = self.serachPath(T, m, oldKey, None)
+        if found == False : 
+            return 
+        
+        self.x = stack.pop(-1)
+        self.oldKey_index = -1
+        is_internal_Node = False 
+        # 내부노드에서 발견한 경우
+        for i in range(0,len(self.x.P)) : 
+            if (self.x.P[i] != 0) and (self.x.P[i] != None) : 
+                is_internal_Node = True
+        
+                
+        if is_internal_Node : 
+            self.internal_Node = copy.deepcopy(self.x)
+            for i in range(0,len(self.internal_Node.K)) : 
+                if self.internal_Node.K[i] == oldKey : 
+                    self.oldKey_index = i
+            
+            found2, stack = self.serachPath(self.x.P[self.oldKey_index], m, self.x.K[self.oldKey_index], stack )
+            
+            self.x = stack.pop(-1)
+            self.temp = self.internal_Node.K[self.oldKey_index]
+            self.internal_Node.K[self.oldKey_index] = self.x.K[1]
+            self.x.K[1] = self.temp
+            
+        finished = False 
+        self.deleteKey(T, m, self.x, oldKey)
+        
+        if len(stack) != 0 : 
+            self.y = stack.pop(-1)
+            if self.x.K[0] == 0 or self.x.K[0] == None :
+                for i in range(0,len(self.y.P)) : 
+                    if self.y.P[i] == self.x : 
+                        self.y.P[i] = None 
+        
+                
+        ## stop 
+        
         pass 
 
     def deleteKey(self, T, m, x, oldKey) : 
-        pass 
+        i = 0 
+        x = self.x 
+        while(oldKey > x.K[i]) : 
+            i += 1 
+
+        while(i <= x.n) :
+            x.K[i] = x.K[i+1]
+            x.P[i] = x.P[i+1]
+            i += 1
+        x.n -= 1 
+        return 
+        
     
     def bestSibling(self, T, m, x, y) : 
         pass 
@@ -150,5 +202,5 @@ for i in range(1,100):
 
 for i in numbers :
     Test.insertBT(Test,3,i)
-
+Test.deleteBT(Test, 3, 15)
 pass 
