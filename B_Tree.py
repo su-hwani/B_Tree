@@ -22,6 +22,7 @@ class B_Tree :
         found, stack = self.serachPath(T, m, newKey, None)
         
         if found == True : 
+            print(f"i {newKey} : The key already exists")
             return self.root
         
         finished = False 
@@ -120,6 +121,7 @@ class B_Tree :
         T = self.root 
         found, stack = self.serachPath(T, m, oldKey, None)
         if found == False : 
+            print(f"d {oldKey} : The key does not exist")
             return 
         self.internal_Node = stack[-1]
         self.x = stack.pop(-1)
@@ -261,12 +263,27 @@ class B_Tree :
         
         pass 
     
+    
 # ----------------------------------------------------------------
     def inorderBT(self, T, m) :
-        pass
+        i = 0 
+        while (T.P[i] != None and T.P[i] != 0 ) : 
+            self.inorderBT(T.P[i],m)
+            if T.K[i] != 0 : 
+                print(f"{T.K[i]}", end = " ")
+            i += 1 
+            
+        for k in T.P : 
+            if k != None and k != 0 : 
+                return 
+        for k in T.K : 
+            if k == 0 or k == None : 
+                continue
+            print(f"{k}", end = " ")
+        
+        return 
             
 Test = B_Tree()
-
 
 # Test.deleteBT(Test,5,28)
 pass 
