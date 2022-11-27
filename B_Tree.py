@@ -147,7 +147,7 @@ class B_Tree :
             self.x.K[0] = self.temp
             
         finished = False 
-        self.deleteKey(T, m, self.x, oldKey)
+        self.deleteKey(self.internal_Node, m, self.x, oldKey)
         
         if len(stack) != 0 : 
             self.y = stack.pop(-1)
@@ -158,14 +158,19 @@ class B_Tree :
         ### ----------------------------------
         
         while True : 
-            if (self.root == self.x) or (self.x.n >= m//2 ) :
+            if (self.root == self.x) or (self.internal_Node.n >= m//2 ) :
+                if self.x.K[0] == 0 : 
+                    for i in range(0,len(self.internal_Node.P)) : 
+                        if self.internal_Node.P[i] == self.x : 
+                            self.internal_Node.P[i] = None
+                            break
                 finished = True 
                 # ok
             else :
-                self.bestSibling_result = self.bestSibling(T, m, self.x, self.y)
+                self.bestSibling_result = self.bestSibling(T, m, self.x, self.internal_Node)
                 
                 if self.y.P[self.bestSibling_result].n > m//2 :
-                    self.redistributeKeys(T, m, self.x, self.y, self.bestSibling_result)
+                    self.redistributeKeys(T, m, self.x, self.internal_Node, self.bestSibling_result)
                     finished = True 
                 else :
                     self.mergeNode(T, m, self.x, self.y, self.bestSibling_result)
@@ -200,6 +205,8 @@ class B_Tree :
             q += 1
         ### 여기 P 마지막꺼만 삭제? 옮기느 작업을 추가해야하지않나싶긴하네
         x.n -= 1 
+        
+                    
         return 
         
     
@@ -220,19 +227,19 @@ class B_Tree :
     
     def redistributeKeys(self, T, m, x, y, bestSibling) : 
         i = 0
-        while(self.y.P[i] != self.x) : 
+        while(y.P[i] != self.x) : 
             i += 1
-        bestNode = self.y.P[bestSibling]
+        bestNode = y.P[bestSibling]
         if bestSibling < i : 
             lastKey = bestNode.K[bestNode.n-1]
-            self.insertKey(T, m, self.x, None, self.y.K[i-1])
+            self.insertKey(T, m, self.x, None, y.K[i-1])
             self.deleteKey(T, m, bestNode, lastKey)
-            self.y.K[i-1] = lastKey
+            y.K[i-1] = lastKey
         else : 
             firstKey = bestNode.K[0]
-            self.insertKey(T, m, self.x, None ,self.y.K[i])
+            self.insertKey(T, m, self.x, None ,y.K[i])
             self.deleteKey(T, m, bestNode, firstKey)
-            self.y.K[i] = firstKey
+            y.K[i] = firstKey
             
         pass 
     
@@ -284,6 +291,29 @@ class B_Tree :
         return 
             
 Test = B_Tree()
+f = open("File_processing/B_Tree_File/BT-input.txt","r")
+arr = [] 
+#for i in f : 
+#    data = i.split(' ')
+#    data[1] = data[1][:-2]
+#    arr.append(data)
 
+for i in f : 
+    data = i.split(' ')
+    data[1] = data[1][:-1]
+    #arr.append(data)
+    if data[0] == 'i' : 
+        Test.insertBT(Test,3,int(data[1]))
+    else : 
+        Test.deleteBT(Test,3,int(data[1]))
+        ###########
+        # 삭제가 되게 꼬인다. 다 출력해보면 꼬이는 부분이 어디인지 알수있는데 
+        # 거기서부터 디버그하면 될 듯.
+        # P의 경로가 꼬이는 거 같은데 힘들다...하..
+        pass
+    Test.inorderBT(Test.root,3)
+    print("")
+    
+print(arr)
 # Test.deleteBT(Test,5,28)
 pass 
